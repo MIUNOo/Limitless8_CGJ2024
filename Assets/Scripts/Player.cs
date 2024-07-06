@@ -3,30 +3,49 @@ using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
+
+    #region Variables
+
     public float moveSpeed = 5.0f;  // 移动速度，用于平滑移动
     public Vector3 gridSize = new Vector3(1, 0, 1);  // 网格大小，假设是1x1
-    public float fallInterval = 0.5f;  // 每隔多久下落一格
+    //public float fallInterval = 0.5f;  // 每隔多久下落一格
     public LayerMask groundLayer;  // 用于射线检测的层
     public LayerMask slopeLayer;  // 用于斜面检测的层
 
+    private FallInEightSec fallScript;
+
+
     private Vector3 targetPosition;
     private bool isMoving;
-    private float fallTimer;
+    //private float fallTimer;
     private bool isGrounded;
     private bool isOnSlope;
+
+
+    #endregion
+
+
+
+
+
 
     void Start()
     {
         // 初始化目标位置为角色当前位置
         targetPosition = transform.position;
-        fallTimer = fallInterval;
+        //fallTimer = fallInterval;
         isGrounded = false;
+
+        fallScript = gameObject.GetComponent<FallInEightSec>();
     }
 
     void Update()
     {
+
+
+
         // 更新重力计时器
-        fallTimer -= Time.deltaTime;
+        //fallTimer -= Time.deltaTime;
 
         // 处理输入，只有当角色不在移动时才接受新输入
         if (!isMoving)
@@ -38,14 +57,26 @@ public class Player : MonoBehaviour
         CheckGrounded();
 
         // 如果没有输入且时间到了且未触底，自动向下移动
-        if (!isMoving && !isGrounded && fallTimer <= 0)
-        {
-            TryMove(Vector3.down);
-            fallTimer = fallInterval; // 重置计时器
-        }
+        //if (!isMoving && !isGrounded && fallTimer <= 0)
+        //{
+        //    TryMove(Vector3.down);
+        //    fallTimer = fallInterval; // 重置计时器
+        //}
 
         // 平滑移动到目标位置
         MoveToTarget();
+
+        if (!isOnSlope&&!isGrounded)
+        {
+            fallScript.enabled = true;
+        }
+        else
+        {
+            fallScript.enabled=false;
+        }
+
+
+
     }
 
     void HandleInput()
@@ -69,10 +100,15 @@ public class Player : MonoBehaviour
             direction = Vector3.right;
         }
 
+       
+ 
+
         if (direction != Vector3.zero)
         {
+            AlignRotation(direction);
             TryMove(direction);
         }
+
     }
 
     void TryMove(Vector3 direction)
@@ -80,6 +116,8 @@ public class Player : MonoBehaviour
         // 检测前方是否有障碍物或斜面
         if (IsObstacleOrSlopeInDirection(direction, out Vector3 slopeDirection))
         {
+            Debug.LogAssertion("OBSTAClE");
+
             direction = slopeDirection;  // 按斜面方向调整目标位置
         }
 
@@ -146,6 +184,7 @@ public class Player : MonoBehaviour
             {
                 isOnSlope = Vector3.Angle(hit.normal, Vector3.up) > 0.1f;
             }
+
         }
     }
 
@@ -186,4 +225,16 @@ public class Player : MonoBehaviour
             Mathf.Round(position.z)
         );
     }
+
+    void AlignRotation(Vector3 direction)
+    {
+        // Calculate the rotation needed to face the direction
+        Quaternion targetRotation = Quaternion.LookRotation(-direction, Vector3.up);
+
+        // Set the GameObject's y rotation to the target rotation's y value
+        Vector3 currentRotation = transform.rotation.eulerAngles;
+        transform.rotation = Quaternion.Euler(currentRotation.x, targetRotation.eulerAngles.y, currentRotation.z);
+    }
+
+
 }
