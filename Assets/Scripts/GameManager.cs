@@ -20,13 +20,19 @@ public class GameManager : MonoBehaviour
     private float currentRotation = 0f; // Track the current rotation angle
     private Coroutine countdownCoroutine; // Reference to the running countdown coroutine
     private float remainingCountdownTime; // Time remaining in the countdown
+    private CharacterController characterController;
+
+    bool playerInput;
 
     // Start is called before the first frame update
     void Start()
     {
+        playerInput = true;
         limitedTurn = int.Parse(limitedUI.text);
         countdownText.gameObject.SetActive(false); // Initially hide the countdown text
         remainingCountdownTime = countdownDuration; // Initialize countdown time
+        characterController = player.GetComponent<CharacterController>();
+        
     }
 
     // Update is called once per frame
@@ -40,14 +46,16 @@ public class GameManager : MonoBehaviour
                 limitedUI.text = limitedTurn.ToString();
             }
 
-            if (Input.GetKeyDown(KeyCode.Q) && currentRotation > -maxRotationAngle)
+            if (Input.GetKeyDown(KeyCode.Q) && currentRotation > -maxRotationAngle && playerInput && characterController.isGrounded)
             {
                 StartCoroutine(RotateAndStartCountdown(-90)); // Rotate left and start countdown
+                playerInput = false;
             }
 
-            if (Input.GetKeyDown(KeyCode.E) && currentRotation < maxRotationAngle)
+            if (Input.GetKeyDown(KeyCode.E) && currentRotation < maxRotationAngle && playerInput && characterController.isGrounded)
             {
                 StartCoroutine(RotateAndStartCountdown(90)); // Rotate right and start countdown
+                playerInput = false;
             }
 
             // If the player presses the 'R' key, rotate back to the original position
@@ -108,15 +116,21 @@ public class GameManager : MonoBehaviour
         map.transform.RotateAround(playerPos, Vector3.forward, endAngle - currentRotation); // Ensure final rotation is exact
         currentRotation = endAngle;
 
-        // Re-enable physics on balls
-        foreach (GameObject ball in balls)
+
+        if (currentRotation != 0)
         {
-            Rigidbody ballRb = ball.GetComponent<Rigidbody>();
-            if (ballRb != null)
+            // Re-enable physics on balls
+            foreach (GameObject ball in balls)
             {
-                ballRb.isKinematic = false;
+                Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+                if (ballRb != null)
+                {
+                    ballRb.isKinematic = false;
+                }
             }
         }
+
+
 
         if (playerRb != null)
         {
@@ -126,6 +140,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1;
         isRotating = false;
     }
+
+
 
     private IEnumerator Countdown()
     {
@@ -167,6 +183,8 @@ public class GameManager : MonoBehaviour
         if (currentRotation != 0)
         {
             yield return StartCoroutine(RotateMap(-currentRotation)); // Rotate back to 0 angle
+
+            playerInput = true;
 
             // If there was a countdown running, stop it
             if (countdownCoroutine != null)
