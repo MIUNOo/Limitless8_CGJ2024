@@ -7,8 +7,13 @@ public class PlayerController : MonoBehaviour
     public Transform cameraTransform;
     public Vector3 cameraOffset = new Vector3(0, 3, -10);
 
+    public GameObject door;
+
     private Vector3 moveDirection = Vector3.zero;
     private CharacterController controller;
+    bool interaction;
+    bool isGoal;
+
 
     void Start()
     {
@@ -29,11 +34,20 @@ public class PlayerController : MonoBehaviour
             move = Camera.main.transform.TransformDirection(move);
             move.y = 0; // Ensure the movement is only horizontal
 
+            if (Input.GetKey(KeyCode.K) && interaction)
+            {
+                door.transform.Rotate(0, -90, 0);
+                interaction = false;
+                isGoal = true;
+            }
+
+
             if (move != Vector3.zero)
             {
                 // Align rotation to movement direction
                 AlignRotation(move);
             }
+
 
             // Set movement direction (character facing direction)
             moveDirection = move * speed;
@@ -66,4 +80,15 @@ public class PlayerController : MonoBehaviour
         // Smoothly rotate towards the target rotation
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10.0f);
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag.Equals("Switch")&&!isGoal)
+        {
+            interaction = true;
+            //Debug.LogAssertion("COLLIDE");
+
+        }
+    }
+
 }
