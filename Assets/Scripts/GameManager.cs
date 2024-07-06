@@ -13,8 +13,7 @@ public class GameManager : MonoBehaviour
     public float maxRotationAngle = 90f;  // Maximum rotation angle from the original orientation
     public float countdownDuration = 8f;  // Duration of the countdown
 
-    public List<GameObject> balls;
-
+    public List<GameObject> balls; // List of balls to disable/enable physics
 
     private int limitedTurn;
     private bool isRotating = false;
@@ -83,6 +82,16 @@ public class GameManager : MonoBehaviour
             playerRb.isKinematic = true; // Disable physics on the player
         }
 
+        // Disable physics on balls
+        foreach (GameObject ball in balls)
+        {
+            Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+            if (ballRb != null)
+            {
+                ballRb.isKinematic = true;
+            }
+        }
+
         float elapsed = 0f;
         float startAngle = currentRotation;
         float endAngle = currentRotation + angle;
@@ -98,6 +107,16 @@ public class GameManager : MonoBehaviour
 
         map.transform.RotateAround(playerPos, Vector3.forward, endAngle - currentRotation); // Ensure final rotation is exact
         currentRotation = endAngle;
+
+        // Re-enable physics on balls
+        foreach (GameObject ball in balls)
+        {
+            Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+            if (ballRb != null)
+            {
+                ballRb.isKinematic = false;
+            }
+        }
 
         if (playerRb != null)
         {
