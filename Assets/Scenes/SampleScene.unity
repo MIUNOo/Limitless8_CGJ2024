@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 91260716}
   - component: {fileID: 91260715}
   - component: {fileID: 91260714}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -232,7 +232,7 @@ GameObject:
   - component: {fileID: 215739642}
   - component: {fileID: 215739641}
   - component: {fileID: 215739640}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (15)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -329,7 +329,7 @@ GameObject:
   - component: {fileID: 260580170}
   - component: {fileID: 260580169}
   - component: {fileID: 260580168}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -426,7 +426,7 @@ GameObject:
   - component: {fileID: 294431570}
   - component: {fileID: 294431569}
   - component: {fileID: 294431568}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -676,6 +676,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   gridSize: {x: 1, y: 1, z: 1}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  slopeForce: 1.5
+  slopeRayLength: 1.5
+  obstacleRayLength: 1
 --- !u!143 &468932614
 CharacterController:
   m_ObjectHideFlags: 0
@@ -685,14 +694,14 @@ CharacterController:
   m_GameObject: {fileID: 468932608}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 2
-  m_Height: 2
+  m_Height: 1
   m_Radius: 0.5
   m_SlopeLimit: 45
-  m_StepOffset: 2
+  m_StepOffset: 1
   m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.5
+  m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &468932615
 Rigidbody:
@@ -722,7 +731,7 @@ GameObject:
   - component: {fileID: 497315581}
   - component: {fileID: 497315580}
   - component: {fileID: 497315579}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -819,7 +828,7 @@ GameObject:
   - component: {fileID: 548566420}
   - component: {fileID: 548566419}
   - component: {fileID: 548566418}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -916,7 +925,7 @@ GameObject:
   - component: {fileID: 693524516}
   - component: {fileID: 693524515}
   - component: {fileID: 693524514}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1107,7 +1116,7 @@ GameObject:
   - component: {fileID: 777053983}
   - component: {fileID: 777053982}
   - component: {fileID: 777053981}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (14)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1204,7 +1213,7 @@ GameObject:
   - component: {fileID: 944934432}
   - component: {fileID: 944934431}
   - component: {fileID: 944934430}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1385,7 +1394,7 @@ GameObject:
   - component: {fileID: 1070479707}
   - component: {fileID: 1070479706}
   - component: {fileID: 1070479705}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1482,7 +1491,7 @@ GameObject:
   - component: {fileID: 1157459763}
   - component: {fileID: 1157459762}
   - component: {fileID: 1157459761}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1579,7 +1588,7 @@ GameObject:
   - component: {fileID: 1161161066}
   - component: {fileID: 1161161065}
   - component: {fileID: 1161161064}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1676,7 +1685,7 @@ GameObject:
   - component: {fileID: 1199362243}
   - component: {fileID: 1199362242}
   - component: {fileID: 1199362241}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (17)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1773,7 +1782,7 @@ GameObject:
   - component: {fileID: 1202469513}
   - component: {fileID: 1202469512}
   - component: {fileID: 1202469511}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (16)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1870,7 +1879,7 @@ GameObject:
   - component: {fileID: 1408820695}
   - component: {fileID: 1408820694}
   - component: {fileID: 1408820693}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2050,7 +2059,7 @@ GameObject:
   - component: {fileID: 1752382406}
   - component: {fileID: 1752382405}
   - component: {fileID: 1752382404}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2147,7 +2156,7 @@ GameObject:
   - component: {fileID: 1971420621}
   - component: {fileID: 1971420620}
   - component: {fileID: 1971420619}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2245,7 +2254,7 @@ GameObject:
   - component: {fileID: 1981287620}
   - component: {fileID: 1981287619}
   - component: {fileID: 1981287618}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2342,7 +2351,7 @@ GameObject:
   - component: {fileID: 2058993060}
   - component: {fileID: 2058993059}
   - component: {fileID: 2058993058}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RubicCube (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
