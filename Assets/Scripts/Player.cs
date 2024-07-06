@@ -11,6 +11,8 @@ public class Player : MonoBehaviour
     public float slopeForce = 1.5f;  // 在坡道上移动的力度
     public float slopeRayLength = 1.5f;  // 检测坡道的射线长度
     public float obstacleRayLength = 1.0f;  // 检测障碍物的射线长度
+    public float groundCheckDistance = 0.5f;  // 检测地面的射线长度
+    public float fallSpeed = 10.0f;  // 角色下落的速度
 
     private Vector3 targetPosition;
     private bool isMoving;
@@ -33,6 +35,9 @@ public class Player : MonoBehaviour
 
         // 平滑移动到目标位置
         MoveToTarget();
+
+        // 检查下方是否有地面
+        CheckForGround();
     }
 
     void HandleInput()
@@ -125,6 +130,20 @@ public class Player : MonoBehaviour
             return true;  // 检测到障碍物
         }
         return false;  // 没有检测到障碍物
+    }
+
+    void CheckForGround()
+    {
+        RaycastHit hit;
+        Vector3 origin = transform.position + characterController.center;
+        Vector3 groundCheckOrigin = origin + Vector3.down * characterController.height / 2;
+
+        if (!Physics.Raycast(groundCheckOrigin, Vector3.down, out hit, groundCheckDistance, groundLayer))
+        {
+            // 如果没有地面，则开始下落
+            Vector3 fallDirection = Vector3.down * fallSpeed * Time.deltaTime;
+            characterController.Move(fallDirection);
+        }
     }
 
     Vector3 RoundToGrid(Vector3 position)
