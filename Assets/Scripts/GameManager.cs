@@ -8,6 +8,9 @@ public class GameManager : MonoBehaviour
 {
     public Player player;
     public Text limitedUI;
+    public GameObject cam;
+
+    bool isLimited;
 
     int limitedTurn;
 
@@ -25,5 +28,22 @@ public class GameManager : MonoBehaviour
             limitedTurn--;
             limitedUI.text = limitedTurn.ToString(); 
         }
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            cam.transform.Rotate(0, 0, -90);
+            isLimited = true;
+            Time.timeScale = 0;
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            cam.transform.Rotate(0, 0, 90);
+            isLimited = false;
+            Time.timeScale = 1;
+        }
     }
+
+
+
 }

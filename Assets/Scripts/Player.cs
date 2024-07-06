@@ -1,18 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
     public float moveSpeed = 5.0f;  // 移动速度，用于平滑移动
     public Vector3 gridSize = new Vector3(1, 0, 1);  // 网格大小，假设是1x1
-    public float fallInterval = .5f;  // 每隔多久下落一格
+    public float fallInterval = 0.5f;  // 每隔多久下落一格
     public LayerMask groundLayer;  // 用于射线检测的层
+    public LayerMask slopeLayer;  // 用于斜面检测的层
 
     private Vector3 targetPosition;
     private bool isMoving;
     private float fallTimer;
     private bool isGrounded;
+    private bool isOnSlope;
 
     void Start()
     {
@@ -76,8 +77,35 @@ public class Player : MonoBehaviour
 
     void TryMove(Vector3 direction)
     {
-        // 检测前方是否有障碍物
-        Vector3 target = targetPosition + Vector3.Scale(direction, gridSize);
+        // 检测前方是否有障碍物或斜面
+        if (IsObstacleOrSlopeInDirection(direction, out Vector3 slopeDirection))
+        {
+            direction = slopeDirection;  // 按斜面方向调整目标位置
+        }
+
+        Vector3 target;
+
+        if (isOnSlope)
+        {
+            RaycastHit slopeHit;
+
+            if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, .5f))
+            {
+                Vector3 dir = Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
+                target = targetPosition + Vector3.Scale(dir, gridSize);
+            }
+            else
+            {
+                target = targetPosition + Vector3.Scale(direction, gridSize);
+            }
+        }
+        else
+        {
+            target = targetPosition + Vector3.Scale(direction, gridSize);
+        }
+
+        target = RoundToNearestInteger(target);
+
         if (!IsObstacleInDirection(direction, target))
         {
             targetPosition = target;
@@ -108,6 +136,17 @@ public class Player : MonoBehaviour
         float distance = 1.0f; // 射线检测距离
 
         isGrounded = Physics.Raycast(origin, direction, distance, groundLayer);
+        isOnSlope = Physics.Raycast(origin, direction, distance, slopeLayer);
+
+        // 检测斜面触底
+        if (isOnSlope)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(origin, direction, out hit, distance, slopeLayer))
+            {
+                isOnSlope = Vector3.Angle(hit.normal, Vector3.up) > 0.1f;
+            }
+        }
     }
 
     bool IsObstacleInDirection(Vector3 direction, Vector3 target)
@@ -116,11 +155,35 @@ public class Player : MonoBehaviour
         Vector3 origin = transform.position + new Vector3(0, 0.5f, 0); // 射线起始位置
         float distance = .8f; // 检测距离
 
-        // 使用盒体检测来覆盖整个方块区域
-        if (Physics.Raycast(origin, direction, distance, groundLayer))
+        return Physics.Raycast(origin, direction, distance, groundLayer);
+    }
+
+    bool IsObstacleOrSlopeInDirection(Vector3 direction, out Vector3 slopeDirection)
+    {
+        slopeDirection = direction;
+
+        // 发射射线检测前方是否有障碍物或斜面
+        Vector3 origin = transform.position + new Vector3(0, 0.5f, 0); // 射线起始位置
+        float distance = gridSize.magnitude; // 检测距离
+
+        if (Physics.Raycast(origin, direction, out RaycastHit hit, distance, slopeLayer))
         {
-            return true;
+            Vector3 normal = hit.normal;
+            if (normal != Vector3.up)
+            {
+                slopeDirection = Vector3.ProjectOnPlane(direction, normal).normalized;
+                return true;
+            }
         }
         return false;
+    }
+
+    Vector3 RoundToNearestInteger(Vector3 position)
+    {
+        return new Vector3(
+            Mathf.Round(position.x),
+            Mathf.Round(position.y),
+            Mathf.Round(position.z)
+        );
     }
 }
