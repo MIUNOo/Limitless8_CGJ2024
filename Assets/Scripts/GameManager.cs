@@ -6,88 +6,82 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public PlayerController player;
-    public Text limitedUI;
     public GameObject map;
-    public Text countdownText; // Text to display countdown
-    public float rotationDuration = 0.5f; // Duration of the rotation
-    public float maxRotationAngle = 90f;  // Maximum rotation angle from the original orientation
-    public float countdownDuration = 8f;  // Duration of the countdown
+    public Image countdownSprite;
+    public float rotationDuration = 0.5f;
+    public float maxRotationAngle = 90f;
+    public float countdownDuration = 8f;
 
-    public List<GameObject> balls; // List of balls to disable/enable physics
+    public List<GameObject> balls;
+    public List<Sprite> countdownSprites;
 
-    public static GameManager Instance; // A static reference to the GameManager instance
+    public static GameManager Instance;
 
-
-    private int limitedTurn;
     private bool isRotating = false;
-    private float currentRotation = 0f; // Track the current rotation angle
-    private Coroutine countdownCoroutine; // Reference to the running countdown coroutine
-    private float remainingCountdownTime; // Time remaining in the countdown
+    private float currentRotation = 0f;
+    private Coroutine countdownCoroutine;
+    private float remainingCountdownTime;
     private CharacterController characterController;
 
-    bool playerInput;
+    private bool playerInput;
 
     void Awake()
     {
-        if (Instance == null) // If there is no instance already
+        if (Instance == null)
         {
-            DontDestroyOnLoad(gameObject); // Keep the GameObject, this component is attached to, across different scenes
+            DontDestroyOnLoad(gameObject);
             Instance = this;
         }
-        else if (Instance != this) // If there is already an instance and it's not `this` instance
+        else if (Instance != this)
         {
-            Destroy(gameObject); // Destroy the GameObject, this component is attached to
+            Destroy(gameObject);
         }
     }
 
-
-    // Start is called before the first frame update
     void Start()
     {
         playerInput = true;
-        limitedTurn = int.Parse(limitedUI.text);
-        countdownText.gameObject.SetActive(false); // Initially hide the countdown text
-        remainingCountdownTime = countdownDuration; // Initialize countdown time
+        countdownSprite.sprite = countdownSprites[8];
+        remainingCountdownTime = countdownDuration;
         characterController = player.GetComponent<CharacterController>();
-        
+
+        if (IsMapHorizontal())
+        {
+            DisableBallPhysics();
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (!isRotating) // Check if not currently rotating
+        if (!isRotating)
         {
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D))
+            if (characterController.isGrounded)
             {
-                limitedTurn--;
-                limitedUI.text = limitedTurn.ToString();
-            }
+                //Debug.LogAssertion("ISGROUNDED");
 
-            if (Input.GetKeyDown(KeyCode.Q) && currentRotation > -maxRotationAngle && playerInput && characterController.isGrounded)
-            {
-                StartCoroutine(RotateAndStartCountdown(-90)); // Rotate left and start countdown
-                playerInput = false;
-            }
+                if (Input.GetKeyDown(KeyCode.Q) && currentRotation > -maxRotationAngle && playerInput)
+                {
+                    StartCoroutine(RotateAndStartCountdown(-90));
+                    playerInput = false;
+                }
 
-            if (Input.GetKeyDown(KeyCode.E) && currentRotation < maxRotationAngle && playerInput && characterController.isGrounded)
-            {
-                StartCoroutine(RotateAndStartCountdown(90)); // Rotate right and start countdown
-                playerInput = false;
+                if (Input.GetKeyDown(KeyCode.E) && currentRotation < maxRotationAngle && playerInput)
+                {
+                    StartCoroutine(RotateAndStartCountdown(90));
+                    playerInput = false;
+                }
             }
-
-            // If the player presses the 'R' key, rotate back to the original position
-            if (Input.GetKeyDown(KeyCode.R))
+            else
             {
-                StartCoroutine(RotateToOriginalPosition());
+                //Debug.LogAssertion("NO");
             }
         }
     }
 
     private IEnumerator RotateAndStartCountdown(float angle)
     {
-        yield return StartCoroutine(RotateMap(angle)); // Rotate to new angle
+        yield return StartCoroutine(RotateMap(angle));
 
-        // Start or restart countdown
         if (countdownCoroutine != null)
         {
             StopCoroutine(countdownCoroutine);
@@ -104,18 +98,10 @@ public class GameManager : MonoBehaviour
         Rigidbody playerRb = player.GetComponent<Rigidbody>();
         if (playerRb != null)
         {
-            playerRb.isKinematic = true; // Disable physics on the player
+            playerRb.isKinematic = true;
         }
 
-        // Disable physics on balls
-        foreach (GameObject ball in balls)
-        {
-            Rigidbody ballRb = ball.GetComponent<Rigidbody>();
-            if (ballRb != null)
-            {
-                ballRb.isKinematic = true;
-            }
-        }
+        DisableBallPhysics();
 
         float elapsed = 0f;
         float startAngle = currentRotation;
@@ -126,62 +112,44 @@ public class GameManager : MonoBehaviour
             float currentAngle = Mathf.Lerp(startAngle, endAngle, elapsed / rotationDuration);
             map.transform.RotateAround(playerPos, Vector3.forward, currentAngle - currentRotation);
             currentRotation = currentAngle;
-            elapsed += Time.unscaledDeltaTime; // Use unscaled time because Time.timeScale is 0
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 
-        map.transform.RotateAround(playerPos, Vector3.forward, endAngle - currentRotation); // Ensure final rotation is exact
+        map.transform.RotateAround(playerPos, Vector3.forward, endAngle - currentRotation);
         currentRotation = endAngle;
 
-
-        if (currentRotation != 0)
+        if (!IsMapHorizontal())
         {
-            // Re-enable physics on balls
-            foreach (GameObject ball in balls)
-            {
-                Rigidbody ballRb = ball.GetComponent<Rigidbody>();
-                if (ballRb != null)
-                {
-                    ballRb.isKinematic = false;
-                }
-            }
+            EnableBallPhysics();
         }
-
-
 
         if (playerRb != null)
         {
-            playerRb.isKinematic = false; // Re-enable physics on the player
+            playerRb.isKinematic = false;
         }
 
         Time.timeScale = 1;
         isRotating = false;
     }
 
-
-
     private IEnumerator Countdown()
     {
-        countdownText.gameObject.SetActive(true);
-
         while (remainingCountdownTime > 0)
         {
-            countdownText.text = remainingCountdownTime.ToString("F1"); // Display countdown in seconds
+            countdownSprite.sprite = countdownSprites[(int)remainingCountdownTime - 1];
             yield return new WaitForSecondsRealtime(1f);
             remainingCountdownTime -= 1f;
 
-            // If the player has rotated back to the original position, stop the countdown
             if (currentRotation == 0)
             {
-                countdownText.gameObject.SetActive(false);
+                countdownSprite.sprite = countdownSprites[8];
                 StartCoroutine(RestoreCountdownTime());
-                yield break; // Exit the coroutine
+                yield break;
             }
         }
 
-        countdownText.gameObject.SetActive(false); // Hide countdown text
-
-        // Rotate back to original position after countdown ends
+        countdownSprite.sprite = countdownSprites[8];
         StartCoroutine(RotateToOriginalPosition());
     }
 
@@ -189,40 +157,66 @@ public class GameManager : MonoBehaviour
     {
         while (remainingCountdownTime < countdownDuration)
         {
-            remainingCountdownTime += 0.5f; // Adjust this value for smoother or faster restoration
-            yield return new WaitForSecondsRealtime(0.1f); // Adjust this value to control how often the countdown time updates
+            remainingCountdownTime += 0.5f;
+            yield return new WaitForSecondsRealtime(0.1f);
         }
-        remainingCountdownTime = countdownDuration; // Ensure it doesn't exceed the max value
+        remainingCountdownTime = countdownDuration;
     }
 
     private IEnumerator RotateToOriginalPosition()
     {
         if (currentRotation != 0)
         {
-            yield return StartCoroutine(RotateMap(-currentRotation)); // Rotate back to 0 angle
-
+            yield return StartCoroutine(RotateMap(-currentRotation));
             playerInput = true;
 
-            // If there was a countdown running, stop it
             if (countdownCoroutine != null)
             {
                 StopCoroutine(countdownCoroutine);
             }
 
-            countdownText.gameObject.SetActive(false); // Hide countdown text
-            remainingCountdownTime = countdownDuration; // Reset countdown time
+            countdownSprite.sprite = countdownSprites[8];
+            remainingCountdownTime = countdownDuration;
         }
     }
 
     public bool IsMapHorizontal()
     {
-        // Get the Z rotation angle of the map
         float zAngle = map.transform.eulerAngles.z;
-
-        // Check if the Z angle is close to 0 or 360 degrees within a small threshold (e.g., 5 degrees)
         return Mathf.Abs(zAngle) < 5f || Mathf.Abs(zAngle - 360f) < 5f;
     }
 
-    ///TODO: 茶壶存在的时候 玩家只能使用一次翻转 除非被破坏(掉进trap)
+    private void DisableBallPhysics()
+    {
+        foreach (GameObject ball in balls)
+        {
+            Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+            if (ballRb != null)
+            {
+                ballRb.isKinematic = true;
+            }
 
+            if (ball.TryGetComponent(out Platform platform))
+            {
+                platform.isStopped = true;
+            }
+        }
+    }
+
+    private void EnableBallPhysics()
+    {
+        foreach (GameObject ball in balls)
+        {
+            Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+            if (ballRb != null)
+            {
+                ballRb.isKinematic = false;
+            }
+
+            if (ball.TryGetComponent(out Platform platform))
+            {
+                platform.isStopped = false;
+            }
+        }
+    }
 }

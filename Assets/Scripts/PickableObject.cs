@@ -119,10 +119,10 @@ public class PickableObject : MonoBehaviour
 
             ReleaseItem();  // 释放物体
         }
-        if (Input.GetKeyDown("t"))
-        {
-            Debug.Log("check " + heldItem.transform.position+" "+ heldItem.name+ heldItem.GetHashCode() + " player pos " + transform.position);
-        }
+        //if (Input.GetKeyDown("t"))
+        //{
+        //    Debug.Log("check " + heldItem.transform.position+" "+ heldItem.name+ heldItem.GetHashCode() + " player pos " + transform.position);
+        //}
     }
 
     void OnTriggerEnter(Collider other)
@@ -140,18 +140,34 @@ public class PickableObject : MonoBehaviour
         item.GetComponent<Rigidbody>().isKinematic = true;  // 设置为Kinematic，防止物理影响
         item.transform.position = holdPoint.position;  // 移动到持有点
         item.transform.parent = holdPoint;  // 成为持有点的子对象
+
+
+        //停止平台
+        if (item.TryGetComponent(out Platform platform))
+        {
+            platform.isStopped = true;
+        }
+
     }
 
     void ReleaseItem()
     {
-        Debug.Log("ReleaseItem0 " + heldItem.transform.position);
+        //Debug.Log("ReleaseItem0 " + heldItem.transform.position);
         if (!gameManager.IsMapHorizontal())
         {
             heldItem.GetComponent<Rigidbody>().isKinematic = false;  // 恢复物理影响
+                                                                     //停止平台
+            if (heldItem.TryGetComponent(out Platform platform))
+            {
+                platform.isStopped = false;
+            }
         }
-        Debug.Log("ReleaseItem1 " + heldItem.transform.position);
+        //Debug.Log("ReleaseItem1 " + heldItem.transform.position);
         heldItem.transform.SetParent(null, true);
-        Debug.Log("ReleaseItem2 " + heldItem.transform.position);
+
+
+
+        //Debug.Log("ReleaseItem2 " + heldItem.transform.position);
         //heldItem.transform.position = holdPoint.transform.position;
         heldItem = null;
     }
