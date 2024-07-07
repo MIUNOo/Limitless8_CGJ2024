@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - Switch
+  - Pickable
+  - player
+  - Wall
+  - enemy
   layers:
   - Default
   - TransparentFX

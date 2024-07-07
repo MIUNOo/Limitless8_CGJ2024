@@ -15,6 +15,9 @@ public class GameManager : MonoBehaviour
 
     public List<GameObject> balls; // List of balls to disable/enable physics
 
+    public static GameManager Instance; // A static reference to the GameManager instance
+
+
     private int limitedTurn;
     private bool isRotating = false;
     private float currentRotation = 0f; // Track the current rotation angle
@@ -23,6 +26,20 @@ public class GameManager : MonoBehaviour
     private CharacterController characterController;
 
     bool playerInput;
+
+    void Awake()
+    {
+        if (Instance == null) // If there is no instance already
+        {
+            DontDestroyOnLoad(gameObject); // Keep the GameObject, this component is attached to, across different scenes
+            Instance = this;
+        }
+        else if (Instance != this) // If there is already an instance and it's not `this` instance
+        {
+            Destroy(gameObject); // Destroy the GameObject, this component is attached to
+        }
+    }
+
 
     // Start is called before the first frame update
     void Start()
@@ -196,4 +213,16 @@ public class GameManager : MonoBehaviour
             remainingCountdownTime = countdownDuration; // Reset countdown time
         }
     }
+
+    public bool IsMapHorizontal()
+    {
+        // Get the Z rotation angle of the map
+        float zAngle = map.transform.eulerAngles.z;
+
+        // Check if the Z angle is close to 0 or 360 degrees within a small threshold (e.g., 5 degrees)
+        return Mathf.Abs(zAngle) < 5f || Mathf.Abs(zAngle - 360f) < 5f;
+    }
+
+    ///TODO: 茶壶存在的时候 玩家只能使用一次翻转 除非被破坏(掉进trap)
+
 }

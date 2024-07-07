@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        controller.Move(Vector3.down * Time.deltaTime*5f);
         // If the character is on the ground
         if (controller.isGrounded)
         {
