@@ -18,7 +18,7 @@ public class PlayerHurt : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         // 检查碰撞对象是否为“敌人”
-        if (collision.gameObject.tag == "Enemy"|| collision.gameObject.tag == "Trap")
+        if (collision.gameObject.tag == "enemy"|| collision.gameObject.tag == "Trap")
         {
             audioSource.Play();  // 播放音效
             Invoke("ResetGame", 2f);  // 延时调用重置场景的函数

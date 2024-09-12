@@ -15,7 +15,7 @@ public class BallPush : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         // 检查碰撞的对象是否有“玩家”或“敌人”的标签
-        if (collision.gameObject.tag == "player" || collision.gameObject.tag == "Enemy")
+        if (collision.gameObject.tag == "player" || collision.gameObject.tag == "enemy")
         {
             Vector3 pushDirection = collision.contacts[0].normal * -1;  // 计算推力方向
             collision.rigidbody.AddForce(pushDirection * pushForce, ForceMode.Impulse);  // 给碰撞对象添加推力

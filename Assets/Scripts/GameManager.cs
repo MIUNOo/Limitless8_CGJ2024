@@ -27,15 +27,15 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            DontDestroyOnLoad(gameObject);
-            Instance = this;
-        }
-        else if (Instance != this)
-        {
-            Destroy(gameObject);
-        }
+        //if (Instance == null)
+        //{
+        //    DontDestroyOnLoad(gameObject);
+        //    Instance = this;
+        //}
+        //else if (Instance != this)
+        //{
+        //    Destroy(gameObject);
+        //}
     }
 
     void Start()
@@ -110,13 +110,13 @@ public class GameManager : MonoBehaviour
         while (elapsed < rotationDuration)
         {
             float currentAngle = Mathf.Lerp(startAngle, endAngle, elapsed / rotationDuration);
-            map.transform.RotateAround(playerPos, Vector3.forward, currentAngle - currentRotation);
+            map.transform.RotateAround(playerPos, Vector3.right, currentAngle - currentRotation);
             currentRotation = currentAngle;
             elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 
-        map.transform.RotateAround(playerPos, Vector3.forward, endAngle - currentRotation);
+        map.transform.RotateAround(playerPos, Vector3.right, endAngle - currentRotation);
         currentRotation = endAngle;
 
         if (!IsMapHorizontal())
@@ -182,7 +182,7 @@ public class GameManager : MonoBehaviour
 
     public bool IsMapHorizontal()
     {
-        float zAngle = map.transform.eulerAngles.z;
+        float zAngle = map.transform.eulerAngles.x;
         return Mathf.Abs(zAngle) < 5f || Mathf.Abs(zAngle - 360f) < 5f;
     }
 
@@ -218,5 +218,21 @@ public class GameManager : MonoBehaviour
                 platform.isStopped = false;
             }
         }
+        // UI 调用的左旋转函数
+        //
+      
+    }
+  public void RotateLeft() { 
+            if (currentRotation > -maxRotationAngle && playerInput && !isRotating) 
+        {
+            StartCoroutine(RotateAndStartCountdown(-90)); playerInput = false;
+        } 
+    } 
+    // UI 调用的右旋转函数
+    public void RotateRight() { 
+        if (currentRotation < maxRotationAngle && playerInput && !isRotating) 
+        { 
+            StartCoroutine(RotateAndStartCountdown(90)); playerInput = false; 
+        } 
     }
 }

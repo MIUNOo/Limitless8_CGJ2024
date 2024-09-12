@@ -12,12 +12,13 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection = Vector3.zero;
     private CharacterController controller;
     bool interaction;
-    bool isGoal;
+     AudioSource aus;
 
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        aus = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -35,11 +36,11 @@ public class PlayerController : MonoBehaviour
             move = Camera.main.transform.TransformDirection(move);
             move.y = 0; // Ensure the movement is only horizontal
 
-            if (Input.GetKey(KeyCode.K) && interaction)
+            if (interaction)
             {
                 door.transform.Rotate(0, -90, 0);
                 interaction = false;
-                isGoal = true;
+                
             }
 
 
@@ -84,11 +85,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag.Equals("Switch")&&!isGoal)
+        if (other.gameObject.tag.Equals("Switch"))
         {
             interaction = true;
             //Debug.LogAssertion("COLLIDE");
-
+            aus.Play();
         }
     }
 
